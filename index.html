@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Project Scope Management Flip Book</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#dfe6ec;--paper:#f7f9fb;--ink:#14213d;--mute:#4d5b73;--acc:#0e7c86;--hi:#f2c14e;--line:#c3ceda;--shadow:rgba(20,33,61,.28);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1420;--paper:#18233a;--ink:#e8eef7;--mute:#a4b2c8;--acc:#4fc3cd;--hi:#f2c14e;--line:#34425d;--shadow:rgba(0,0,0,.6)}}
+:root[data-theme="dark"]{--bg:#0d1420;--paper:#18233a;--ink:#e8eef7;--mute:#a4b2c8;--acc:#4fc3cd;--hi:#f2c14e;--line:#34425d;--shadow:rgba(0,0,0,.6)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Source Serif 4",Georgia,serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;overflow:hidden;touch-action:pan-y}
+.book{position:relative;width:min(92vw,440px);height:min(74vh,640px);perspective:1800px}
+.leaf{position:absolute;inset:0;transform-origin:left center;transition:transform .8s cubic-bezier(.5,.1,.2,1),opacity .35s .45s;backface-visibility:hidden}
+.leaf.flipped{transform:rotateY(-112deg);opacity:0;pointer-events:none}
+.pg{height:100%;background:var(--paper);border-radius:3px 10px 10px 3px;box-shadow:0 12px 30px var(--shadow),inset 10px 0 12px -10px var(--shadow);padding:26px 24px 20px 30px;display:flex;flex-direction:column;overflow:auto;border-left:5px solid var(--acc);
+background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 28px;background-position:0 12px}
+.pg>*{position:relative}
+h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0 0 12px;line-height:1.08;letter-spacing:-.01em}
+h1{font-size:2.3rem;font-weight:800}h2{font-size:1.65rem;font-weight:800}
+p,li{font-size:1.04rem;line-height:1.5;margin:0 0 10px}
+p,li,h1,h2,.box,.tag{background:var(--paper)}
+ul{padding-left:1.1rem;margin:0}
+b{color:var(--acc);font-weight:600}
+.tag{align-self:flex-start;font-family:"Bricolage Grotesque",system-ui,sans-serif;font-size:.85rem;color:var(--mute);margin-bottom:8px}
+.box{border:2px solid var(--ink);border-radius:6px;padding:10px 12px;margin:6px 0 10px;font-size:.95rem;line-height:1.4}
+.hl{background:var(--hi);color:#14213d;padding:0 3px}
+.flow{display:grid;gap:7px;margin:4px 0;counter-reset:s}
+.flow div{display:flex;gap:10px;align-items:center;background:var(--paper);border:2px solid var(--ink);border-radius:6px;padding:7px 10px;font-size:.98rem}
+.flow div:before{counter-increment:s;content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:.9rem}
+.tree{font-size:.92rem;line-height:1.35}
+.tree div{background:var(--paper);padding:3px 8px;margin:4px 0;border-left:3px solid var(--acc)}
+.l1{margin-left:0;font-weight:600}.l2{margin-left:18px}.l3{margin-left:36px;color:var(--mute)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;background:var(--paper);margin:6px 0 10px}
+td,th{border:1.5px solid var(--ink);padding:5px 7px;text-align:left;vertical-align:top}th{background:var(--hi);color:#14213d}
+.creep{display:flex;align-items:center;gap:8px;margin:10px 0}
+.creep i{border-radius:50%;border:3px solid var(--acc);background:color-mix(in srgb,var(--acc) 18%,var(--paper));display:block}
+.creep span{margin-left:auto;font-size:.9rem;color:var(--mute)}
+.cover{justify-content:center}
+.cover h1{font-size:2.7rem}
+.nav{display:flex;align-items:center;gap:14px;font-family:"Bricolage Grotesque",system-ui,sans-serif}
+.nav button{width:52px;height:46px;border:2px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:8px;font-size:1.3rem;cursor:pointer}
+.nav button:disabled{opacity:.35}
+.nav button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.nav output{min-width:70px;text-align:center;font-size:.95rem}
+@media (prefers-reduced-motion:reduce){.leaf{transition:none}}
+</style>
+</head>
+<body>
+<div class="book" id="book" aria-live="polite"></div>
+<div class="nav"><button id="prev" aria-label="Previous page">&#8592;</button><output id="num"></output><button id="next" aria-label="Next page">&#8594;</button></div>
+<script>
+var P=[
+'<div class="cover"><div class="tag">Chapter 5 flip book</div><h1>Project Scope Management</h1><p>All the work required, and <span class="hl">only</span> the work required.</p><p style="color:var(--mute)">Tap, swipe, or use the arrows to turn the page.</p></div>',
+'<div class="tag">The basics</div><h2>What is scope?</h2><p><b>Scope</b> is all the work needed to create the project’s products, plus the processes used to create them.</p><p>A <b>deliverable</b> is anything the project produces: software, hardware, plans, or meeting minutes.</p><div class="box">Scope management defines and controls what is and isn’t in the project, so everyone shares the same understanding.</div>',
+'<div class="tag">The big picture</div><h2>Six processes</h2><div class="flow"><div>Plan scope management</div><div>Collect requirements</div><div>Define scope</div><div>Create the WBS</div><div>Validate scope</div><div>Control scope</div></div>',
+'<div class="tag">Process 1</div><h2>Plan scope management</h2><p>The team uses expert judgment, data analysis, and meetings to produce two outputs:</p><ul><li>A <b>scope management plan</b></li><li>A <b>requirements management plan</b></li></ul><div class="box">A requirement is a condition or capability a product must have to satisfy a business need.</div>',
+'<div class="tag">Process 2</div><h2>Collect requirements</h2><ul><li>Interview stakeholders</li><li>Run focus groups and workshops</li><li>Use group creativity and decision techniques</li><li>Send questionnaires and surveys</li><li>Observe people at work</li><li>Benchmark against other projects</li></ul>',
+'<div class="tag">Process 2 tool</div><h2>Requirements traceability matrix</h2><p>A table listing each requirement, its attributes, and its status, so none get missed.</p><table><tr><th>No.</th><th>Name</th><th>Category</th></tr><tr><td>R32</td><td>Laptop memory</td><td>Hardware</td></tr><tr><th colspan="2">Source</th><th>Status</th></tr><tr><td colspan="2">Project charter and corporate laptop specs</td><td>Complete: laptops ordered meet it</td></tr></table>',
+'<div class="tag">Process 3</div><h2>Define scope</h2><p>The <b>scope statement</b> includes:</p><ul><li>Product scope description</li><li>User acceptance criteria</li><li>Details of all deliverables</li></ul><p style="margin-top:10px">Also record boundaries, constraints, assumptions, and supporting documents. Scope gets clearer and more specific over time.</p>',
+'<div class="tag">Process 3 example</div><h2>Vague to specific</h2><div class="box"><b>Version 1:</b> Any extra servers must be compatible with existing ones. The CEO must approve a plan two weeks before installation.</div><div class="box"><b>Version 2:</b> Purchase <span class="hl">10 new servers</span> for web, network, database, application, and printing. Use virtualization.</div>',
+'<div class="tag">Process 4</div><h2>Work breakdown structure</h2><p>A <b>WBS</b> groups the work by deliverable and defines the total scope. It is the base for schedules, costs, resources, and changes.</p><ul><li><b>Decomposition</b>: split deliverables into smaller pieces</li><li><b>Work package</b>: the lowest-level task</li><li><b>Scope baseline</b>: approved scope statement + WBS + WBS dictionary</li></ul>',
+'<div class="tag">Process 4 example</div><h2>A WBS tree</h2><div class="tree"><div class="l1">1.0 Software Product Release 5.0</div><div class="l2">1.1 Project Management</div><div class="l3">1.1.1 Planning</div><div class="l3">1.1.2 Meetings</div><div class="l2">1.2 Product Requirements</div><div class="l3">1.2.1 Software</div><div class="l2">1.3 Detail Design</div><div class="l2">1.4 Construct</div><div class="l2">1.5 Integration and Test</div></div>',
+'<div class="tag">Process 4 methods</div><h2>Ways to build a WBS</h2><ul><li><b>Guidelines</b>: follow rules such as the U.S. DOD’s</li><li><b>Analogy</b>: adapt a similar project’s WBS</li><li><b>Top-down</b>: start big, break down</li><li><b>Bottom-up</b>: start with specific tasks</li><li><b>Mind mapping</b>: branch out from a core idea</li></ul>',
+'<div class="tag">Process 4 document</div><h2>The WBS dictionary</h2><p>Many WBS tasks are vague. The dictionary describes each item in detail.</p><div class="box"><b>Item 2.2: Database Update</b><br>Review the hardware and software database, update it after the physical inventory, and get managers to verify it.<br><b>Depends on:</b> 2.1 Physical Inventory<br><b>Must finish before:</b> 3.0 Acquisition</div>',
+'<div class="tag">WBS rules</div><h2>Make a good WBS</h2><ul><li>A unit of work appears in only one place</li><li>A parent’s work equals the sum of its children</li><li>Each item has one responsible person</li><li>It matches how work is really done</li><li>The team helps build it, for buy-in</li><li>Every item is in the dictionary</li><li>It stays flexible for change</li></ul>',
+'<div class="tag">Process 5</div><h2>Validate scope</h2><p>Validation is formal acceptance of completed deliverables, usually by customer inspection and sign-off.</p><p><b>Scope creep</b> is the tendency for scope to keep growing. Many IT projects suffer from it.</p><div class="creep"><i style="width:22px;height:22px"></i><i style="width:38px;height:38px"></i><i style="width:58px;height:58px"></i><i style="width:84px;height:84px"></i><span>creep</span></div>',
+'<div class="tag">Process 6</div><h2>Control scope</h2><p>Control changes to scope while keeping project goals and business strategy in mind.</p><ul><li>Influence what causes scope changes</li><li>Process changes through integrated change control</li><li>Manage changes when they happen</li></ul><div class="box"><b>Variance</b> is the difference between planned and actual performance.</div>',
+'<div class="tag">Control tips</div><h2>Keep users involved</h2><ul><li>Pick sponsors from the user organization</li><li>Put users on the team</li><li>Hold regular meetings with agendas</li><li>Deliver something regularly</li><li>Don’t promise what you can’t deliver</li><li>Seat users with the developers</li></ul>',
+'<div class="tag">Control tips</div><h2>Stabilize requirements</h2><ul><li>Follow a requirements process</li><li>Use prototypes, use cases, and JAD</li><li>Write requirements down and keep them current</li><li>Keep a requirements database</li><li>Test throughout the life cycle</li><li>Review changes from a systems view</li><li>Set aside resources for change requests</li></ul>',
+'<div class="tag">Tools</div><h2>Software that helps</h2><ul><li><b>Word processor</b>: scope documents</li><li><b>Spreadsheets and slides</b>: charts and matrices</li><li><b>Mind-mapping</b>: drafting a WBS</li><li><b>Email and web apps</b>: sharing scope information</li><li><b>Project software</b>: WBS, then a Gantt chart</li></ul>',
+'<div class="cover"><div class="tag">Summary</div><h2>Remember</h2><p>Scope management ensures the project covers <span class="hl">all the work required, and only the work required</span>.</p><div class="flow"><div>Plan</div><div>Collect</div><div>Define</div><div>Create WBS</div><div>Validate</div><div>Control</div></div></div>'
+];
+var book=document.getElementById('book'),num=document.getElementById('num'),prev=document.getElementById('prev'),next=document.getElementById('next'),cur=0,leaves=[];
+P.forEach(function(h,i){var l=document.createElement('div');l.className='leaf';l.style.zIndex=P.length-i;l.innerHTML='<div class="pg">'+h+'</div>';book.appendChild(l);leaves.push(l)});
+function go(n){cur=Math.max(0,Math.min(P.length-1,n));leaves.forEach(function(l,i){l.classList.toggle('flipped',i<cur)});num.textContent=(cur+1)+' / '+P.length;prev.disabled=cur===0;next.disabled=cur===P.length-1}
+prev.onclick=function(){go(cur-1)};next.onclick=function(){go(cur+1)};
+document.addEventListener('keydown',function(e){if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1)});
+var sx=null;
+document.addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+document.addEventListener('touchend',function(e){if(sx===null)return;var d=e.changedTouches[0].clientX-sx;sx=null;if(d<-40)go(cur+1);else if(d>40)go(cur-1)});
+go(0);
+</script>
+</body>
+</html>
